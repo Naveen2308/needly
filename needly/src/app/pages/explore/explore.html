@@ -1,0 +1,90 @@
+<div class="max-w-4xl mx-auto flex flex-col px-4 font-body min-h-screen">
+  
+  <!-- Search Header -->
+  <header class="sticky top-0 bg-white z-40 -mx-4 px-4 pt-6 md:pt-10 mb-8 border-b-2 border-black/5 pb-4">
+    <h1 class="text-3xl font-black text-black uppercase tracking-tighter mb-4" style="font-family: 'Manrope', sans-serif;">Discover Products</h1>
+    <p class="text-[0.6875rem] font-bold text-slate-500 uppercase tracking-widest mb-6">Find the perfect tool for your current situation.</p>
+    
+    <div class="relative w-full max-w-2xl">
+      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        <span class="material-symbols-outlined text-black" style="font-size: 20px;">search</span>
+      </div>
+      <input 
+        type="text" 
+        [value]="searchQuery()"
+        (input)="onSearchChange($event)"
+        class="w-full bg-white border-2 border-black pl-12 pr-4 py-4 text-sm font-bold tracking-wider placeholder:text-slate-400 focus:outline-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:translate-y-[2px] focus:translate-x-[2px] transition-all"
+        placeholder="TRY 'EMAIL MARKETING' OR 'AI WRITER'...">
+    </div>
+  </header>
+
+  <!-- Category Filters -->
+  <div class="flex gap-3 overflow-x-auto pb-4 mb-8" style="scrollbar-width: none;">
+    <button 
+      *ngFor="let cat of categories" 
+      (click)="setCategory(cat)"
+      class="whitespace-nowrap px-4 py-2 border-2 border-black text-[0.625rem] font-black uppercase tracking-widest transition-colors cursor-pointer"
+      [class.bg-black]="activeCategory() === cat || (cat === 'All' && !activeCategory())"
+      [class.text-white]="activeCategory() === cat || (cat === 'All' && !activeCategory())"
+      [class.bg-white]="activeCategory() !== cat && !(cat === 'All' && !activeCategory())"
+      [class.text-black]="activeCategory() !== cat && !(cat === 'All' && !activeCategory())"
+      [class.hover:bg-slate-100]="activeCategory() !== cat && !(cat === 'All' && !activeCategory())">
+      {{ cat }}
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="flex flex-col items-center justify-center py-20 text-center" *ngIf="loading()">
+    <div class="w-10 h-10 border-4 border-slate-100 border-t-black rounded-full animate-spin mb-4"></div>
+    <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Searching...</p>
+  </div>
+
+  <!-- Results Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20" *ngIf="!loading()">
+    <article *ngFor="let product of products()" 
+      (click)="goToProduct(product.id)"
+      class="bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-[4px] hover:translate-x-[4px] transition-all duration-200 flex flex-col cursor-pointer">
+      <div class="p-4 border-b-2 border-black flex items-center justify-between bg-slate-50">
+        <div class="flex items-center gap-3">
+          <img [src]="product.logo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + product.name" class="w-10 h-10 border-2 border-black rounded-full bg-white object-cover">
+          <div class="flex flex-col">
+            <h3 class="text-xs font-black text-black uppercase tracking-wider m-0">{{ product.name }}</h3>
+            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{{ product.category }}</span>
+          </div>
+        </div>
+        <!-- Upvote Button -->
+        <button (click)="toggleUpvote($event, product)"
+          class="flex flex-col items-center gap-0.5 px-2 py-1 border-2 border-black transition-all text-[10px] font-black"
+          [class.bg-black]="isUpvoted(product)"
+          [class.text-white]="isUpvoted(product)"
+          [class.bg-white]="!isUpvoted(product)"
+          [class.text-black]="!isUpvoted(product)">
+          <span class="material-symbols-outlined" style="font-size: 14px;">arrow_upward</span>
+          {{ product.upvotes?.length || 0 }}
+        </button>
+      </div>
+      <div class="p-4 flex-1 flex flex-col">
+        <p class="text-xs font-bold text-black mb-3">{{ product.tagline }}</p>
+        <p class="text-[11px] text-slate-600 leading-relaxed mb-4 line-clamp-3">{{ product.description }}</p>
+        <div class="mt-auto flex justify-between items-center pt-3 border-t-2 border-black border-dashed">
+          <div class="flex items-center gap-2">
+            <img [src]="product.founder?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + product.founder?.name" class="w-5 h-5 rounded-full border border-black object-cover">
+            <span class="text-[9px] font-bold text-black uppercase tracking-wider">{{ product.founder?.name || 'Founder' }}</span>
+          </div>
+          <div class="flex items-center gap-1 text-amber-500">
+            <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span>
+            <span class="text-[10px] font-bold">{{ product.rating | number:'1.1-1' }}</span>
+            <span class="text-[9px] text-slate-400">({{ product.numReviews }})</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Empty State -->
+    <div class="col-span-full flex flex-col items-center justify-center py-16 text-center border-2 border-black border-dashed bg-slate-50" *ngIf="products().length === 0">
+      <span class="material-symbols-outlined text-3xl text-slate-300 mb-2" style="font-variation-settings: 'FILL' 0;">search_off</span>
+      <h3 class="text-sm font-black uppercase tracking-wider text-black mb-1">No products found</h3>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Try adjusting your search or category filters.</p>
+    </div>
+  </div>
+</div>

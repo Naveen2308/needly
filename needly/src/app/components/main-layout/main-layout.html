@@ -1,0 +1,80 @@
+<div class="h-screen bg-white text-black font-body flex overflow-hidden">
+  <!-- Left Sidebar (Desktop) -->
+  <aside class="hidden md:flex flex-col w-64 border-r border-black/10 h-screen sticky top-0 p-6 bg-white z-50">
+    <div class="mb-10 cursor-pointer" routerLink="/home">
+      <app-logo variant="responsive"></app-logo>
+    </div>
+
+    <nav class="flex-1 flex flex-col space-y-2">
+      <a routerLink="/home" routerLinkActive="bg-slate-100" class="flex items-center gap-4 p-3 rounded-md hover:bg-slate-50 transition-colors cursor-pointer text-sm font-bold uppercase tracking-wider text-slate-800">
+        <span class="material-symbols-outlined" style="font-size: 20px;">home</span>
+        <span>Home</span>
+      </a>
+      <a routerLink="/explore" routerLinkActive="bg-slate-100" class="flex items-center gap-4 p-3 rounded-md hover:bg-slate-50 transition-colors cursor-pointer text-sm font-bold uppercase tracking-wider text-slate-800">
+        <span class="material-symbols-outlined" style="font-size: 20px;">explore</span>
+        <span>Directory</span>
+      </a>
+      <a routerLink="/submit" class="flex items-center gap-4 p-3 rounded-md bg-black text-white hover:bg-slate-800 transition-colors cursor-pointer text-sm font-bold uppercase tracking-wider mt-4 shadow-md">
+        <span class="material-symbols-outlined" style="font-size: 20px;">add_circle</span>
+        <span>Add Product</span>
+      </a>
+      <a routerLink="/notifications" routerLinkActive="bg-slate-100" class="flex items-center gap-4 p-3 rounded-md hover:bg-slate-50 transition-colors cursor-pointer text-sm font-bold uppercase tracking-wider text-slate-800 mt-2 relative">
+        <span class="material-symbols-outlined" style="font-size: 20px;">notifications</span>
+        <span>Alerts</span>
+        <span *ngIf="notifService.unreadCount() > 0" class="absolute right-3 top-1/2 -translate-y-1/2 bg-red-500 text-white text-[9px] font-black min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1">
+          {{ notifService.unreadCount() > 9 ? '9+' : notifService.unreadCount() }}
+        </span>
+      </a>
+      <a [routerLink]="['/profile', user()?.id]" routerLinkActive="bg-slate-100" class="flex items-center gap-4 p-3 rounded-md hover:bg-slate-50 transition-colors cursor-pointer text-sm font-bold uppercase tracking-wider text-slate-800">
+        <img [src]="user()?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=user'" class="w-6 h-6 rounded-full border border-black/10 object-cover">
+        <span>Profile</span>
+      </a>
+    </nav>
+
+    <div class="mt-auto pt-4 border-t border-black/10 flex flex-col space-y-1">
+      <a routerLink="/settings" routerLinkActive="bg-slate-100" class="flex items-center gap-4 p-3 rounded-md hover:bg-slate-50 transition-colors cursor-pointer text-sm font-bold uppercase tracking-wider text-slate-800">
+        <span class="material-symbols-outlined" style="font-size: 20px;">settings</span>
+        <span>Settings</span>
+      </a>
+      <button (click)="authService.logout().subscribe()" class="flex items-center gap-4 p-3 w-full text-slate-500 hover:text-black transition-colors text-xs font-bold uppercase tracking-wider bg-transparent border-none cursor-pointer">
+        <span class="material-symbols-outlined" style="font-size: 16px;">logout</span>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Area (Unified scroll container) -->
+  <main class="flex-1 w-full pb-20 md:pb-0 overflow-y-auto">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Bottom Navigation (Mobile) -->
+  <nav class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t-2 border-black flex justify-around items-center h-16 px-1 z-50">
+    <a routerLink="/home" routerLinkActive="bg-slate-100 !text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border-2 border-black" 
+      class="text-slate-400 p-2 rounded-lg transition-all duration-300 flex items-center justify-center">
+      <span class="material-symbols-outlined" style="font-size: 24px;">home</span>
+    </a>
+    <a routerLink="/explore" routerLinkActive="bg-slate-100 !text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border-2 border-black" 
+      class="text-slate-400 p-2 rounded-lg transition-all duration-300 flex items-center justify-center">
+      <span class="material-symbols-outlined" style="font-size: 24px;">explore</span>
+    </a>
+    
+    <!-- Special Add Button -->
+    <a routerLink="/submit" routerLinkActive="shadow-none translate-x-[1.5px] translate-y-[1.5px]" class="bg-black text-white h-10 w-10 flex items-center justify-center rounded-xl cursor-pointer active:scale-90 transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-none hover:translate-x-[1.5px] hover:translate-y-[1.5px]">
+      <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+    </a>
+
+    <a routerLink="/notifications" routerLinkActive="bg-slate-100 !text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border-2 border-black" 
+      class="text-slate-400 p-2 rounded-lg transition-all duration-300 flex items-center justify-center relative">
+      <span class="material-symbols-outlined" style="font-size: 24px;">notifications</span>
+      <span *ngIf="notifService.unreadCount() > 0" class="absolute top-0 right-0 bg-red-500 text-white text-[7px] font-black min-w-[14px] h-[14px] rounded-full flex items-center justify-center px-0.5 border border-white">
+        {{ notifService.unreadCount() > 9 ? '9+' : notifService.unreadCount() }}
+      </span>
+    </a>
+    <a [routerLink]="['/profile', user()?.id]" routerLinkActive="bg-slate-100 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] opacity-100" 
+      class="opacity-60 p-1.5 rounded-lg transition-all duration-300 flex items-center justify-center">
+      <img [src]="user()?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=user'" class="w-7 h-7 rounded-full border border-black/20 object-cover">
+    </a>
+  </nav>
+
+</div>

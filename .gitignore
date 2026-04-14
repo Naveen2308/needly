@@ -1,0 +1,18 @@
+# Node modules
+node_modules/
+
+# Compiled output
+dist/
+out-tsc/
+/needly/.angular/
+
+# Environment variables & Secrets (CRITICAL)
+.env
+*.env
+client_secret*.json
+Wallet_*
+Wallet_*/
+
+# OS files
+.DS_Store
+Thumbs.db

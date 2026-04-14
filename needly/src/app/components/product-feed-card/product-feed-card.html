@@ -1,0 +1,55 @@
+<article class="max-w-[500px] mx-auto w-full bg-white border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] mb-8 overflow-hidden group hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all">
+  <!-- Header: Founder -->
+  <header class="flex items-center justify-between p-4 border-b-2 border-black bg-slate-50">
+    <div class="flex items-center gap-3">
+      <img [src]="product.founder?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + product.founder?.name" class="w-8 h-8 rounded-full border border-black object-cover">
+      <div class="flex flex-col">
+        <span class="text-xs font-black text-black uppercase tracking-wider">{{ product.founder?.name || 'Founder' }}</span>
+        <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{{ product.createdAt | date:'mediumDate' }}</span>
+      </div>
+    </div>
+    <span class="px-2 py-0.5 bg-black text-white text-[8px] font-black uppercase tracking-widest">{{ product.category }}</span>
+  </header>
+
+  <!-- Product Preview Body -->
+  <div class="p-6 cursor-pointer" [routerLink]="['/product', product.id]">
+    <div class="flex items-start gap-5">
+      <img [src]="product.logo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + product.name" 
+        class="w-16 h-16 rounded-2xl border-2 border-black bg-white object-cover shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+      
+      <div class="flex-1">
+        <h3 class="text-xl font-black text-black uppercase tracking-tight leading-tight mb-1" style="font-family: 'Manrope', sans-serif;">
+          {{ product.name }}
+        </h3>
+        <p class="text-[11px] font-bold text-slate-600 mb-2 leading-tight uppercase tracking-wide">{{ product.tagline }}</p>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <p class="text-xs text-slate-700 leading-relaxed line-clamp-2 font-medium">
+        {{ product.description }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <footer class="flex items-center justify-between p-4 border-t-2 border-black bg-slate-50">
+    <div class="flex items-center gap-2">
+      <div class="flex items-center gap-0.5 text-amber-500 bg-amber-50 px-2 py-0.5 rounded border border-amber-100/50">
+        <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span>
+        <span class="text-[11px] font-black">{{ product.rating | number:'1.1-1' }}</span>
+      </div>
+      <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">({{ product.numReviews }} reviews)</span>
+    </div>
+
+    <button (click)="toggleUpvote($event)"
+      class="flex items-center gap-2 px-4 py-2 border-2 border-black text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]"
+      [class.bg-black]="isUpvoted()"
+      [class.text-white]="isUpvoted()"
+      [class.bg-white]="!isUpvoted()"
+      [class.text-black]="!isUpvoted()">
+      <span class="material-symbols-outlined" style="font-size: 14px;">arrow_upward</span>
+      {{ product.upvotes?.length || 0 }}
+    </button>
+  </footer>
+</article>

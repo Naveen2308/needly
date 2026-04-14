@@ -1,0 +1,84 @@
+<div class="max-w-4xl mx-auto flex gap-16 px-0 md:px-4 font-body">
+  <!-- Feed Center Column -->
+  <div class="flex-1 max-w-[500px] px-4 md:px-0">
+    <!-- Desktop Header -->
+    <header class="hidden md:block sticky top-0 bg-white z-40 pt-6 md:pt-10 mb-8 border-b-2 border-black/5 pb-6">
+      <h1 class="text-3xl font-black text-black uppercase tracking-tighter" style="font-family: 'Manrope', sans-serif;">Home</h1>
+      <p class="text-[0.6875rem] font-bold text-slate-500 uppercase tracking-widest mt-1">Discover what's trending in the community.</p>
+    </header>
+    
+    <!-- Mobile Top Header (Branding) -->
+    <div class="md:hidden sticky top-0 z-40 bg-white border-b border-black md:border-black/5 px-4 h-14 flex items-center justify-between mb-6">
+      <div class="cursor-pointer" routerLink="/home">
+          <app-logo variant="short"></app-logo>
+      </div>
+      <h2 class="text-2xl font-black uppercase tracking-tighter text-black m-0" style="font-family: 'Manrope', sans-serif;">Home</h2>
+      <div class="w-7"></div> <!-- Spacer for perfect centering -->
+    </div>
+
+    <!-- Loading State -->
+    <div class="flex flex-col items-center justify-center py-20 text-center" *ngIf="loading()">
+      <div class="w-10 h-10 border-4 border-slate-100 border-t-black rounded-full animate-spin mb-4"></div>
+      <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Fetching products...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="flex flex-col items-center justify-center py-20 text-center border-y border-red-100 bg-red-50" *ngIf="error()">
+      <p class="text-xs font-bold uppercase tracking-wider text-red-600 mb-4">{{ error() }}</p>
+      <button (click)="fetchFeed()" class="bg-black text-white px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-slate-800 transition-colors cursor-pointer border-none">Retry</button>
+    </div>
+
+    <!-- Main Feed (Products) -->
+    <div class="flex flex-col" *ngIf="!loading() && !error()">
+      <app-product-feed-card 
+        *ngFor="let product of products()" 
+        [product]="product"
+        (upvote)="handleUpvote($event)">
+      </app-product-feed-card>
+
+      <!-- Empty State -->
+      <div class="flex flex-col items-center justify-center py-20 text-center border-2 border-black border-dashed text-slate-500 bg-slate-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" *ngIf="products().length === 0">
+        <div class="text-4xl mb-4">🚀</div>
+        <h3 class="text-sm font-black uppercase tracking-wider text-black mb-2">No products yet</h3>
+        <p class="text-xs uppercase tracking-widest leading-relaxed">Be the first to feature your product!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Sidebar (Trending) -->
+  <aside class="hidden lg:block w-[320px] pt-4">
+    <div class="flex items-center gap-3 mb-10 p-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white cursor-pointer" [routerLink]="['/profile', authService.user()?.id]">
+      <img [src]="authService.user()?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=me'" class="w-12 h-12 rounded-full border-2 border-black object-cover">
+      <div class="flex-1">
+        <div class="text-sm font-black text-black truncate uppercase tracking-tight">{{ authService.user()?.name }}</div>
+        <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">View Profile</div>
+      </div>
+    </div>
+
+    <!-- Trending Products -->
+    <div class="flex justify-between items-center mb-6">
+      <span class="text-xs font-black uppercase tracking-widest text-slate-400">🔥 Trending Now</span>
+      <a routerLink="/explore" class="text-[9px] font-bold uppercase tracking-widest hover:text-slate-500 text-black no-underline underline decoration-2 underline-offset-4">See All</a>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div *ngFor="let product of trendingProducts()" class="bg-white border-2 border-black p-3 hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all">
+        <a [routerLink]="['/product', product.id]" class="flex items-center gap-3 no-underline text-inherit">
+          <img [src]="product.logo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + product.name" class="w-10 h-10 border-2 border-black rounded-full bg-white object-cover">
+          <div class="flex-1 min-w-0">
+            <div class="text-[11px] font-black text-black truncate uppercase">{{ product.name }}</div>
+            <div class="text-[9px] uppercase tracking-wider text-slate-500 truncate mt-0.5">{{ product.tagline }}</div>
+          </div>
+          <div class="flex items-center gap-0.5 text-orange-500 flex-shrink-0 bg-orange-50 px-2 py-1 rounded-sm border border-orange-100">
+            <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">local_fire_department</span>
+            <span class="text-[11px] font-black">{{ product.upvotes?.length || 0 }}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="mt-12 pt-6 border-t-2 border-black border-dashed">
+      <p class="text-[9px] font-black uppercase tracking-[0.25em] text-slate-300">&copy; 2026 NEEDLY &bull; DIRECTORY</p>
+    </div>
+  </aside>
+</div>

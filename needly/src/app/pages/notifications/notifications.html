@@ -1,0 +1,68 @@
+<div class="max-w-2xl mx-auto px-4 font-body min-h-screen">
+  <!-- Header -->
+  <header class="sticky top-0 bg-white z-40 -mx-4 px-4 pt-6 md:pt-10 flex justify-between items-center mb-8 border-b-2 border-black/5 pb-4">
+    <div>
+      <h1 class="text-2xl font-black text-black uppercase tracking-tighter" style="font-family: 'Manrope', sans-serif;">Notifications</h1>
+      <p class="text-[0.625rem] font-bold text-slate-500 uppercase tracking-widest mt-1">Stay updated on activity</p>
+    </div>
+    <button 
+      *ngIf="notifService.notifications().length > 0"
+      (click)="markAllRead()" 
+      class="text-[10px] font-black uppercase tracking-widest text-[#0066ff] hover:text-blue-800 transition-colors cursor-pointer bg-transparent border-none">
+      Mark all read
+    </button>
+  </header>
+
+  <!-- Loading -->
+  <div class="flex flex-col items-center justify-center py-20 text-center" *ngIf="notifService.loading()">
+    <div class="w-10 h-10 border-4 border-slate-100 border-t-black rounded-full animate-spin mb-4"></div>
+    <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Loading...</p>
+  </div>
+
+  <!-- Notification List -->
+  <div class="flex flex-col" *ngIf="!notifService.loading()">
+    <div 
+      *ngFor="let notif of notifService.notifications()"
+      (click)="handleNotificationClick(notif)"
+      class="flex items-start gap-4 p-4 border-b border-black/5 cursor-pointer transition-all duration-200 hover:bg-slate-50"
+      [class.bg-blue-50/40]="!notif.readStatus"
+      [class.border-l-4]="!notif.readStatus"
+      [class.border-l-blue-500]="!notif.readStatus">
+      
+      <!-- Sender Avatar -->
+      <div class="relative flex-shrink-0">
+        <img 
+          [src]="notif.sender?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + notif.sender?.name" 
+          class="w-10 h-10 rounded-full border border-black/10 object-cover">
+        <!-- Type Icon Badge -->
+        <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center border-2 border-white"
+          [style.background-color]="getIconColor(notif.type)">
+          <span class="material-symbols-outlined text-white" style="font-size: 10px; font-variation-settings: 'FILL' 1;">
+            {{ getIcon(notif.type) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1 min-w-0">
+        <p class="text-sm leading-snug">
+          <span class="font-black text-black">{{ notif.sender?.name }}</span>
+          <span class="text-slate-600 ml-1">{{ notif.message }}</span>
+        </p>
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 block">
+          {{ getTimeAgo(notif.createdAt) }}
+        </span>
+      </div>
+
+      <!-- Unread dot -->
+      <div *ngIf="!notif.readStatus" class="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-2"></div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="flex flex-col items-center justify-center py-20 text-center border border-black/10 bg-slate-50 rounded-none" *ngIf="notifService.notifications().length === 0">
+      <span class="material-symbols-outlined text-5xl text-slate-300 mb-4" style="font-variation-settings: 'FILL' 0;">notifications_off</span>
+      <h3 class="text-sm font-black uppercase tracking-wider text-black mb-2">No notifications yet</h3>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">When people interact with your posts, you'll see it here.</p>
+    </div>
+  </div>
+</div>

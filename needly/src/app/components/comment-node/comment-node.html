@@ -1,0 +1,65 @@
+<div class="mb-6 relative">
+  <!-- Indentation Line for Nested -->
+  <div *ngIf="depth > 0" class="absolute left-[-20px] top-4 bottom-0 w-[2.5px] bg-black/5 rounded-full"></div>
+
+  <div class="flex gap-4">
+    <!-- User Avatar -->
+    <img [src]="comment.author?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + comment.author?.name" 
+      class="w-9 h-9 rounded-full border-2 border-black object-cover flex-shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+    
+    <div class="flex-1">
+      <div class="flex items-center gap-2 mb-1.5">
+        <span class="text-[11px] font-black text-black uppercase tracking-tight">{{ comment.author?.name }}</span>
+        <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{{ comment.createdAt | date:'mediumDate' }}</span>
+        
+        <div class="flex items-center gap-0.5 ml-2" *ngIf="comment.rating">
+          <span *ngFor="let s of getStars(comment.rating)" class="material-symbols-outlined text-black" style="font-size: 10px; font-variation-settings: 'FILL' 1;">star</span>
+        </div>
+      </div>
+
+      <!-- Comment Content -->
+      <div class="pr-2">
+        <p class="text-xs text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
+          {{ displayText() }}
+          <button *ngIf="shouldShowMore()" (click)="isTextExpanded.set(!isTextExpanded())"
+            class="bg-transparent border-none p-0 ml-1 text-[10px] font-black uppercase tracking-widest text-black hover:underline cursor-pointer">
+            {{ isTextExpanded() ? 'Show Less' : 'Show More' }}
+          </button>
+        </p>
+      </div>
+
+      <!-- Actions Area -->
+      <div class="flex items-center gap-6 mt-3">
+        <button (click)="showReplyForm.set(!showReplyForm())" 
+          class="flex items-center gap-1.5 bg-transparent border-none p-0 text-[9px] font-black uppercase tracking-widest text-slate-500 hover:text-black cursor-pointer transition-colors group">
+          <span class="material-symbols-outlined transition-transform group-active:scale-90" style="font-size: 14px;">reply</span>
+          {{ showReplyForm() ? 'Cancel' : 'Reply' }}
+        </button>
+        
+        <!-- Optional: View Replies Toggle (Only if replies exist) -->
+        <div *ngIf="comment.replies?.length > 0" class="flex items-center gap-1.5 p-0 text-[8px] font-black uppercase tracking-widest text-slate-400">
+           <span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
+           {{ comment.replies.length }} {{ comment.replies.length === 1 ? 'Reply' : 'Replies' }}
+        </div>
+      </div>
+
+      <!-- Quick Reply Form -->
+      <div *ngIf="showReplyForm()" class="mt-4 border-2 border-black p-4 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] max-w-lg">
+        <textarea [(ngModel)]="replyText" placeholder="Write a professional reply..." class="w-full bg-slate-50 border border-black/10 p-3 text-xs focus:outline-none focus:border-black/30 resize-none mb-3 font-medium" rows="3"></textarea>
+        <div class="flex justify-end gap-3">
+          <button (click)="submitReply()" class="bg-black text-white px-5 py-2 text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all cursor-pointer border-none shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">Send Reply</button>
+        </div>
+      </div>
+
+      <!-- Recursive Replies -->
+      <div class="mt-8 ml-2 sm:ml-6 border-l-2 border-black/5 pl-4 sm:pl-6" *ngIf="comment.replies?.length > 0">
+        <app-comment-node 
+          *ngFor="let replyNode of comment.replies" 
+          [comment]="replyNode" 
+          [depth]="depth + 1"
+          (reply)="onChildReply($event)">
+        </app-comment-node>
+      </div>
+    </div>
+  </div>
+</div>

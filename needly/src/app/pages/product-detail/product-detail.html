@@ -1,0 +1,202 @@
+<div class="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8 font-['Space_Grotesk']">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb & Back -->
+    <div class="mb-8">
+      <a routerLink="/home" class="group flex items-center gap-2 text-black no-underline">
+        <span class="material-symbols-outlined transition-transform group-hover:-translate-x-1">arrow_back</span>
+        <span class="text-xs font-black uppercase tracking-widest">Back to Discover</span>
+      </a>
+    </div>
+
+    <!-- Product Header Card -->
+    <div class="bg-white border-4 border-black p-8 md:p-12 mb-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+      <!-- Background Pattern -->
+      <div class="absolute top-0 right-0 w-32 h-32 bg-black/5 rotate-45 translate-x-16 -translate-y-16"></div>
+      
+      <div class="relative z-10">
+        <div class="flex flex-col md:flex-row gap-8 items-start">
+          <img [src]="product()?.logo || 'https://api.dicebear.com/7.x/identicon/svg?seed=' + product()?.name" 
+            class="w-24 h-24 md:w-32 md:h-32 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] object-cover bg-white">
+          
+          <div class="flex-1">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+              <h1 class="text-4xl md:text-5xl font-black text-black leading-none uppercase tracking-tighter">
+                {{ product()?.name }}
+              </h1>
+              <div class="flex gap-3">
+                <button (click)="handleSave()" 
+                  [class.bg-black]="isSaved()"
+                  [class.text-white]="isSaved()"
+                  [class.bg-white]="!isSaved()"
+                  [class.text-black]="!isSaved()"
+                  class="flex items-center gap-2 border-2 border-black px-4 py-2 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none">
+                  <span class="material-symbols-outlined font-black" 
+                    [style.font-variation-settings]="isSaved() ? '\'FILL\' 1' : '\'FILL\' 0'">
+                    bookmark
+                  </span>
+                </button>
+                <button (click)="handleUpvote()" 
+                  [class.bg-black]="isUpvoted()"
+                  [class.text-white]="isUpvoted()"
+                  [class.bg-white]="!isUpvoted()"
+                  [class.text-black]="!isUpvoted()"
+                  class="flex items-center gap-2 border-2 border-black px-6 py-2 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none">
+                  <span class="material-symbols-outlined font-black" 
+                    [style.font-variation-settings]="isUpvoted() ? '\'FILL\' 1' : '\'FILL\' 0'">
+                    arrow_upward
+                  </span>
+                  <span class="font-black text-lg">{{ upvoteCount() }}</span>
+                </button>
+                <a [href]="product()?.website" target="_blank" 
+                  class="flex items-center gap-2 border-2 border-black px-6 py-2 bg-black text-white transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.4)] active:shadow-none no-underline">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">open_in_new</span>
+                  <span class="font-black uppercase tracking-widest text-xs">Visit</span>
+                </a>
+              </div>
+            </div>
+
+            <span class="inline-block px-3 py-1 bg-black text-white text-[10px] font-black uppercase tracking-widest mb-4">
+              {{ product()?.category }}
+            </span>
+
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-0.5">
+                <ng-container *ngFor="let s of getStars(0)">
+                  <span class="material-symbols-outlined text-black" 
+                    [style.font-size]="'20px'"
+                    [style.font-variation-settings]="(s <= (product()?.rating || 0)) ? '\'FILL\' 1' : '\'FILL\' 0'">
+                    star
+                  </span>
+                </ng-container>
+              </div>
+              <span class="text-sm font-black text-black ml-2">{{ product()?.rating | number:'1.1-1' }}</span>
+              <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">({{ product()?.numReviews }} reviews)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mt-10 pt-8 border-t-4 border-black border-dashed">
+          <h3 class="text-xs font-black uppercase tracking-[0.2em] text-black/40 mb-4">Product Overview</h3>
+          <div class="relative">
+            <p class="text-lg text-black leading-relaxed font-medium whitespace-pre-wrap">
+              {{ displayDescription() }}
+            </p>
+            <button *ngIf="shouldShowMoreDesc()" (click)="isDescExpanded.set(!isDescExpanded())"
+              class="mt-4 text-[10px] font-black uppercase tracking-widest underline decoration-2 underline-offset-4 hover:text-black/60 transition-colors">
+              {{ isDescExpanded() ? 'Show Less' : 'Read Full Description' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Founder Info -->
+        <div class="mt-10 pt-6 border-t-2 border-black/10 flex items-center justify-between bg-slate-50 -mx-8 -mb-8 px-8 py-6">
+          <div class="flex items-center gap-4">
+            <img [src]="product()?.founder?.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + product()?.founder?.name" 
+              class="w-10 h-10 rounded-full border-2 border-black object-cover bg-white">
+            <div>
+              <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Created by</p>
+              <a [routerLink]="['/profile', product()?.founderId]" class="text-xs font-black text-black uppercase tracking-tight hover:underline no-underline">
+                {{ product()?.founder?.name }}
+              </a>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Launched on</p>
+            <span class="text-xs font-black text-black uppercase tracking-tight">{{ product()?.createdAt | date:'longDate' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rating CTA -->
+    <!-- Rating Card Redesigned -->
+    <div class="mb-12 border-4 border-black bg-white overflow-hidden shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] flex flex-col md:flex-row divide-y-4 md:divide-y-0 md:divide-x-4 divide-black">
+      <div class="p-8 bg-black flex flex-col justify-center items-center text-center">
+        <h3 class="text-xs font-black uppercase tracking-[0.3em] text-white mb-1">Your Verdict</h3>
+        <p class="text-[10px] font-bold uppercase tracking-widest text-white/60">{{ hasUserRated() ? 'Updated' : 'Not Rated Yet' }}</p>
+      </div>
+      
+      <div class="flex-1 p-8 bg-white flex flex-col items-center justify-center">
+        <div class="flex gap-2 mb-6">
+          <button *ngFor="let s of getStars(0)" 
+            (click)="quickRate(s)" 
+            [disabled]="isRatingSubmitting()"
+            (mouseenter)="hoverRating.set(s)"
+            (mouseleave)="hoverRating.set(0)"
+            class="group relative bg-transparent border-none cursor-pointer transition-all hover:-translate-y-1 active:translate-y-0 disabled:opacity-30 outline-none">
+            <span class="material-symbols-outlined transition-colors duration-200" 
+              [style.font-size]="'56px'"
+              [class.text-black]="s <= (hoverRating() || commentRating() || userRating())"
+              [class.text-black/10]="s > (hoverRating() || commentRating() || userRating())"
+              [style.font-variation-settings]="(s <= (hoverRating() || commentRating() || userRating())) ? '\'FILL\' 1' : '\'FILL\' 0'">
+              star
+            </span>
+            <!-- Visual highlight on hover -->
+            <div *ngIf="s === hoverRating()" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 bg-black rounded-full"></div>
+          </button>
+        </div>
+        
+        <p class="text-xs font-black uppercase tracking-[0.2em]"
+          [class.text-black/50]="isRatingSubmitting()"
+          [class.text-black/40]="!isRatingSubmitting() && !hasUserRated()"
+          [class.text-black]="hasUserRated() && !isRatingSubmitting()">
+          {{ isRatingSubmitting() ? 'Recording Response...' : (hasUserRated() ? 'You Rating ' + userRating() + '/5' : 'Select a score to Rate') }}
+        </p>
+
+        <div *ngIf="ratingError()" class="mt-4 px-4 py-2 bg-red-100 border-2 border-black text-[10px] font-black uppercase tracking-widest text-red-600">
+          {{ ratingError() }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Discussion Section -->
+    <div class="mb-24">
+      <div class="flex justify-between items-end mb-8 border-b-4 border-black pb-4">
+        <h2 class="text-3xl font-black text-black uppercase tracking-tighter italic">
+          Pulse
+        </h2>
+        <button (click)="showCommentForm.set(!showCommentForm())"
+          class="px-6 py-2 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all border-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] active:shadow-none">
+          {{ showCommentForm() ? 'Close' : 'Add Comment' }}
+        </button>
+      </div>
+
+      <!-- New Comment Form -->
+      <div *ngIf="showCommentForm()" class="border-4 border-black p-8 mb-12 bg-white shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]">
+        <div *ngIf="commentError()" class="bg-red-100 border-2 border-black p-4 text-xs font-black uppercase mb-6">
+          Error: {{ commentError() }}
+        </div>
+
+        <!-- Rating section removed from here to decouple logic -->
+
+        <div class="mb-8">
+          <label class="text-xs font-black text-black uppercase tracking-widest block mb-3">Comment</label>
+          <textarea [(ngModel)]="commentText" rows="4" placeholder="Be honest, be brutal, be helpful..."
+            class="w-full bg-white border-2 border-black p-4 text-sm focus:outline-none focus:ring-0 placeholder:text-slate-300 font-bold shadow-[inner_4px_4px_0px_0px_rgba(0,0,0,0.05)]"></textarea>
+        </div>
+
+        <button (click)="submitComment()" [disabled]="commentSubmitting() || !commentText.trim()"
+          class="w-full bg-black text-white py-4 text-xs font-black uppercase tracking-[0.3em] hover:bg-zinc-800 disabled:opacity-30 transition-all">
+          {{ commentSubmitting() ? 'Transmitting...' : 'Comment' }}
+        </button>
+      </div>
+
+      <!-- Discussion Tree -->
+      <div class="space-y-6">
+        <app-comment-node 
+          *ngFor="let node of commentTree()" 
+          [comment]="node" 
+          [depth]="0"
+          (reply)="handleReply($event)">
+        </app-comment-node>
+
+        <div class="py-20 text-center border-4 border-black border-dashed bg-white/50" *ngIf="commentTree().length === 0">
+          <span class="material-symbols-outlined text-5xl text-black/10 mb-4">chat_bubble</span>
+          <h3 class="text-lg font-black uppercase tracking-tighter text-black/20">Empty Space</h3>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-black/20">No one has spoken yet.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

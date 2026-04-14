@@ -1,0 +1,43 @@
+<div class="min-h-screen bg-white text-black py-8 px-6 flex flex-col items-center justify-center font-body">
+  <main class="w-full max-w-md relative z-10">
+    <app-card [footer]="true" customClass="p-8 md:p-10">
+      <div class="flex flex-col items-center mb-10 text-center">
+        <app-logo variant="long" customClass="mb-8"></app-logo>
+        <h2 class="text-3xl font-bold text-black tracking-tight uppercase" style="font-family: 'Manrope', sans-serif;">Verify Email</h2>
+        <p class="text-neutral-500 text-[0.625rem] mt-3 uppercase tracking-[0.2em] leading-relaxed">
+          Please enter the 6-digit code sent to your email address.
+        </p>
+      </div>
+
+      <form class="space-y-8" (submit)="$event.preventDefault()">
+        <!-- OTP Input Grid -->
+        <div class="flex justify-between gap-2 sm:gap-4">
+          <div *ngFor="let digit of otpDigits; let i = index" class="w-full aspect-square max-w-[3rem]">
+            <input
+              type="text"
+              maxLength="1"
+              [(ngModel)]="otpDigits[i]"
+              [name]="'otp-' + i"
+              (input)="onDigitInput($event, i)"
+              (keydown)="onKeyDown($event, i)"
+              class="w-full h-full text-center text-xl font-bold bg-neutral-50 border border-neutral-200 rounded-none focus:border-black focus:ring-0 outline-none transition-all duration-200"
+            />
+          </div>
+        </div>
+
+        <div class="pt-4">
+          <app-button variant="primary" type="submit">
+            Verify Code
+          </app-button>
+        </div>
+      </form>
+
+      <div footer class="text-center">
+        <p class="text-[0.6875rem] text-neutral-500 uppercase tracking-widest">
+          Didn't receive the code? 
+          <a href="#" class="text-black font-black hover:underline underline-offset-4 ml-2">Resend</a>
+        </p>
+      </div>
+    </app-card>
+  </main>
+</div>
