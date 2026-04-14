@@ -22,7 +22,8 @@ export class NotificationService {
   }
 
   private initSocket() {
-    this.socket = io(environment.apiUrl.replace('/api', ''), {
+    const socketUrl = new URL(environment.apiUrl).origin;
+    this.socket = io(socketUrl, {
       withCredentials: true,
       extraHeaders: {
         "ngrok-skip-browser-warning": "true"
