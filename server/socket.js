@@ -4,9 +4,22 @@ let io;
 const userSockets = new Map();
 
 const init = (server) => {
+    const allowedOrigins = [
+        'http://localhost:4200',
+        'http://127.0.0.1:4200',
+        'http://localhost:5000',
+        'https://needly.fun',
+        'https://api.needly.fun'
+    ];
+
+    const frontendUrl = process.env.FRONTEND_URL;
+    if (frontendUrl && !allowedOrigins.includes(frontendUrl)) {
+        allowedOrigins.push(frontendUrl);
+    }
+
     io = socketio(server, {
         cors: {
-            origin: ['http://localhost:4200', 'http://127.0.0.1:4200', 'http://localhost:4200', 'http://localhost:5000'],
+            origin: allowedOrigins,
             methods: ['GET', 'POST'],
             credentials: true
         }

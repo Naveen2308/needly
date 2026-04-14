@@ -16,12 +16,20 @@ app.use(cors({
         const allowedOrigins = [
             'http://localhost:4200',
             'http://127.0.0.1:4200',
-            'http://localhost:4200',
-            'http://localhost:5000'
+            'http://localhost:5000',
+            'https://needly.fun',
+            'https://api.needly.fun'
         ];
+        
+        const frontendUrl = process.env.FRONTEND_URL;
+        if (frontendUrl && !allowedOrigins.includes(frontendUrl)) {
+            allowedOrigins.push(frontendUrl);
+        }
+
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
+            console.warn(`CORS blocked for origin: ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
