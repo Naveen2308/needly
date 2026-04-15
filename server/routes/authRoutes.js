@@ -244,7 +244,11 @@ router.post('/forgot-password', async (req, res) => {
             { autoCommit: true }
         );
 
-        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:4200'}/reset-password?token=${resetToken}`;
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+        const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+        
+        console.log(`[Auth] Password reset requested. Frontend URL: ${frontendUrl}, Reset URL: ${resetUrl}`);
+
         const message = `You are receiving this email because you (or someone else) have requested the reset of a password. Please go to: \n\n ${resetUrl}`;
         const html = `
             <div style="font-family: 'Inter', system-ui, -apple-system, sans-serif; max-width: 600px; margin: 40px auto; padding: 40px; border: 4px solid #000; background-color: #fff; box-shadow: 12px 12px 0px 0px #000;">

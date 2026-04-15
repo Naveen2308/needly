@@ -1,4 +1,4 @@
-import { Component, input, model } from '@angular/core';
+import { Component, input, model, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -14,12 +14,15 @@ import { FormsModule } from '@angular/forms';
       <div class="relative">
         <input
           [id]="id()"
-          [type]="type()"
+          [type]="type() === 'password' && showPassword() ? 'text' : type()"
           [placeholder]="placeholder()"
           [(ngModel)]="value"
           class="block w-full px-4 py-3 text-black bg-neutral-50 border border-neutral-200 rounded-none focus:border-black focus:ring-0 outline-none transition-all duration-200 placeholder:text-neutral-300 text-sm"
         />
         <ng-content select="[suffix]"></ng-content>
+        <button *ngIf="type() === 'password'" type="button" (click)="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-black">
+          <span class="material-symbols-outlined text-xl">{{ showPassword() ? 'visibility_off' : 'visibility' }}</span>
+        </button>
       </div>
       <p *ngIf="error()" class="text-[0.625rem] text-red-600 font-bold uppercase tracking-wider mt-1">{{ error() }}</p>
     </div>
@@ -37,4 +40,10 @@ export class InputComponent {
   value = model<string>('');
   error = input<string>('');
   containerClass = input<string>('');
+
+  showPassword = signal(false);
+
+  togglePassword() {
+    this.showPassword.update(v => !v);
+  }
 }
