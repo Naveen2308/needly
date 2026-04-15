@@ -122,6 +122,18 @@ export class AuthService {
     );
   }
 
+  refreshToken() {
+    return this.http.post<any>(`${this.apiUrl}/refresh`, {}, { withCredentials: true }).pipe(
+      tap({
+        next: (response) => {
+          if (response.accessToken) {
+            localStorage.setItem('accessToken', response.accessToken);
+          }
+        }
+      })
+    );
+  }
+
   logout() {
     return this.http.get(`${this.apiUrl}/logout`).pipe(
       tap({

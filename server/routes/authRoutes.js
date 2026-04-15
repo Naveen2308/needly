@@ -149,10 +149,10 @@ router.post('/refresh', async (req, res) => {
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge: 15 * 60 * 1000
         });
-        res.json({ message: 'Token refreshed' });
+        res.json({ message: 'Token refreshed', accessToken });
     } catch (error) {
         res.status(403).json({ message: 'Invalid refresh token' });
     }

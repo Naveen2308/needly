@@ -20,7 +20,7 @@ import { FormsModule } from '@angular/forms';
           class="block w-full px-4 py-3 text-black bg-neutral-50 border border-neutral-200 rounded-none focus:border-black focus:ring-0 outline-none transition-all duration-200 placeholder:text-neutral-300 text-sm"
         />
         <ng-content select="[suffix]"></ng-content>
-        <button *ngIf="type() === 'password'" type="button" (click)="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-black">
+        <button *ngIf="type() === 'password'" type="button" (mousedown)="$event.preventDefault()" (click)="togglePassword($event)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-black">
           <span class="material-symbols-outlined text-xl">{{ showPassword() ? 'visibility_off' : 'visibility' }}</span>
         </button>
       </div>
@@ -43,7 +43,9 @@ export class InputComponent {
 
   showPassword = signal(false);
 
-  togglePassword() {
+  togglePassword(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
     this.showPassword.update(v => !v);
   }
 }

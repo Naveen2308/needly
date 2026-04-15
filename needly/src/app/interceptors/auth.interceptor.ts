@@ -47,16 +47,39 @@ export class AuthInterceptor implements HttpInterceptor {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
 
-      // In a separate-URL setup, we'd typically use the refreshToken here.
-      // For now, if 401 occurs, we simplify by logging out.
-      this.isRefreshing = false;
-      this.authService.finalizeLogout(); // Use the logout cleanup logic
-      return throwError(() => new Error('Session expired'));
+      // Attempt to refresh the token
+      return this.authService.refreshToken().pipe(
+        switchMap((res: any) => {
+          this.isRefreshing = false;
+          const newAccessToken = res.accessToken;
+          this.refreshTokenSubject.next(newAccessToken);
+
+          // Retry the original request with the new token
+          const newReq = request.clone({
+            setHeaders: {
+              Authorization: `Bearer ${newAccessToken}`
+            }
+          });
+          return next.handle(newReq);
+        }),
+        catchError((err) => {
+          this.isRefreshing = false;
+          this.authService.finalizeLogout();
+          return throwError(() => err);
+        })
+      );
     } else {
       return this.refreshTokenSubject.pipe(
-        filter(result => result !== null),
+        filter(token => token !== null),
         take(1),
-        switchMap(() => next.handle(request))
+        switchMap(token => {
+          const newReq = request.clone({
+            setHeaders: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          return next.handle(newReq);
+        })
       );
     }
   }
