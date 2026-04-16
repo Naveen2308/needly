@@ -8,6 +8,18 @@ const { query } = require('../config/db');
 const { protect } = require('../middleware/authMiddleware');
 const sendEmail = require('../utils/email');
 
+// In-memory store for short-lived Google OAuth auth codes
+// Format: { code: { userId, accessToken, refreshToken, expiresAt } }
+const authCodes = new Map();
+
+// Cleanup expired codes every 60 seconds
+setInterval(() => {
+    const now = Date.now();
+    for (const [code, data] of authCodes) {
+        if (now > data.expiresAt) authCodes.delete(code);
+    }
+}, 60000);
+
 const generateToken = (id, type) => {
     const secret = type === 'access' ? process.env.JWT_SECRET : process.env.REFRESH_TOKEN_SECRET || 'refresh_secret';
     const expiry = type === 'access' ? '15m' : '7d';
@@ -208,12 +220,55 @@ router.get('/google/callback', (req, res, next) => {
 
         setTokenCookies(res, accessToken, refreshToken);
 
-        const redirectUrl = (process.env.FRONTEND_URL || 'http://localhost:4200') + '/home?token=' + accessToken;
+        // Generate a short-lived, one-time-use auth code instead of exposing the JWT in the URL
+        const tempCode = crypto.randomBytes(32).toString('hex');
+        authCodes.set(tempCode, {
+            userId,
+            accessToken,
+            refreshToken,
+            expiresAt: Date.now() + 30000 // 30 seconds
+        });
+
+        const redirectUrl = (process.env.FRONTEND_URL || 'http://localhost:4200') + '/home?code=' + tempCode;
         res.redirect(redirectUrl);
     } catch (err) {
         console.error('Google callback error:', err);
         res.redirect((process.env.FRONTEND_URL || 'http://localhost:4200') + '/login?error=google_auth_failed');
     }
+});
+
+// Exchange a one-time auth code for real tokens (used after Google OAuth redirect)
+router.post('/exchange-code', async (req, res) => {
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ message: 'Code is required' });
+
+    const authData = authCodes.get(code);
+    if (!authData) return res.status(401).json({ message: 'Invalid or expired code' });
+
+    // One-time use: delete immediately
+    authCodes.delete(code);
+
+    // Check expiry
+    if (Date.now() > authData.expiresAt) {
+        return res.status(401).json({ message: 'Code has expired' });
+    }
+
+    // Return the tokens securely in the response body
+    setTokenCookies(res, authData.accessToken, authData.refreshToken);
+    
+    const result = await query(
+        'SELECT id, name, email, role FROM Users WHERE id = :id',
+        { id: authData.userId }
+    );
+    const user = result.rows[0];
+
+    res.json({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        accessToken: authData.accessToken
+    });
 });
 
 router.post('/forgot-password', async (req, res) => {

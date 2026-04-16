@@ -25,17 +25,41 @@ export class AuthService {
     private notificationService: NotificationService
   ) {
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
+    const code = urlParams.get('code');
     
-    // Only intercept token if NOT on the reset-password page
-    // This prevents the app from misinterpreting a reset token as an access token
-    if (token && !window.location.pathname.includes('/reset-password')) {
-      console.log('Auth token found in URL, saving to localStorage');
-      localStorage.setItem('accessToken', token);
-      window.history.replaceState({}, '', '/home');
+    // If we have an auth code from Google OAuth, exchange it for a real token
+    if (code && !window.location.pathname.includes('/reset-password')) {
+      // Clean the URL immediately so the code is never visible for long
+      window.history.replaceState({}, '', window.location.pathname);
+      
+      this.exchangeCodeForToken(code);
+    } else {
+      this.forceAuthCheck();
     }
+  }
 
-    this.forceAuthCheck();
+  private exchangeCodeForToken(code: string) {
+    this.loading.set(true);
+    this.http.post<any>(`${this.apiUrl}/exchange-code`, { code }).subscribe({
+      next: (response) => {
+        if (response.accessToken) {
+          localStorage.setItem('accessToken', response.accessToken);
+        }
+        this.user.set(response);
+        this.authReady.set(true);
+        this.notificationService.identify(response.id);
+        this.loading.set(false);
+        this.router.navigate(['/home']);
+      },
+      error: (err) => {
+        console.error('Code exchange failed:', err);
+        this.authReady.set(true);
+        this.loading.set(false);
+        this.router.navigate(['/login'], { 
+          queryParams: { error: 'auth_failed' } 
+        });
+      }
+    });
   }
 
   forceAuthCheck(): Promise<boolean> {
