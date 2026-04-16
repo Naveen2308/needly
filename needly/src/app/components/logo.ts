@@ -6,11 +6,11 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div [class]="'flex flex-col items-center ' + customClass()">
+    <div [class]="'flex items-center ' + customClass()">
       <ng-container [ngSwitch]="variant()">
         
         <!-- Modern N Logo Asset -->
-        <svg *ngSwitchCase="'short'" viewBox="0 20 80 80" xmlns="http://www.w3.org/2000/svg" class="h-8 w-auto object-contain">
+        <svg *ngSwitchCase="'short'" viewBox="0 25 80 70" xmlns="http://www.w3.org/2000/svg" class="h-10 w-auto object-contain">
           <style>
             .logo-text { font-family: 'Space Grotesk', 'Manrope', sans-serif; font-weight: 800; }
           </style>
@@ -20,7 +20,7 @@ import { CommonModule } from '@angular/common';
 
         <!-- Needly Logo With Text Asset -->
         <div *ngSwitchCase="'long'" class="flex items-center gap-2">
-          <svg viewBox="0 20 240 80" xmlns="http://www.w3.org/2000/svg" class="h-10 w-auto object-contain">
+          <svg viewBox="0 25 240 70" xmlns="http://www.w3.org/2000/svg" class="h-14 w-auto object-contain">
             <style>
               .logo-text { font-family: 'Space Grotesk', 'Manrope', sans-serif; font-weight: 800; }
             </style>
@@ -32,7 +32,7 @@ import { CommonModule } from '@angular/common';
 
         <!-- Responsive Logo Asset -->
         <div *ngSwitchCase="'responsive'" class="flex items-center">
-          <svg viewBox="0 20 80 80" xmlns="http://www.w3.org/2000/svg" class="h-8 w-auto object-contain md:hidden">
+          <svg viewBox="0 25 80 70" xmlns="http://www.w3.org/2000/svg" class="h-10 w-auto object-contain md:hidden">
             <style>
               .logo-text { font-family: 'Space Grotesk', 'Manrope', sans-serif; font-weight: 800; }
             </style>
@@ -40,7 +40,7 @@ import { CommonModule } from '@angular/common';
             <text x="40" y="65" text-anchor="middle" class="logo-text" font-size="50" fill="#ffffff" dominant-baseline="middle">N</text>
           </svg>
 
-          <svg viewBox="0 20 240 80" xmlns="http://www.w3.org/2000/svg" class="h-10 w-auto object-contain hidden md:block">
+          <svg viewBox="0 25 240 70" xmlns="http://www.w3.org/2000/svg" class="h-14 w-auto object-contain hidden md:block">
             <style>
               .logo-text { font-family: 'Space Grotesk', 'Manrope', sans-serif; font-weight: 800; }
             </style>
